@@ -17,11 +17,11 @@ import java.sql.Statement;
 import java.util.List;  
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;  
-import javax.servlet.annotation.WebServlet;  
-import javax.servlet.http.HttpServlet;  
-import javax.servlet.http.HttpServletRequest;  
-import javax.servlet.http.HttpServletResponse;  
+import jakarta.servlet.ServletException;  
+import jakarta.servlet.annotation.WebServlet;  
+import jakarta.servlet.http.HttpServlet;  
+import jakarta.servlet.http.HttpServletRequest;  
+import jakarta.servlet.http.HttpServletResponse;  
 
 /**
  *
@@ -69,6 +69,7 @@ public class VehicleServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
             
+        System.out.println("VehicleServlet.doGet() called with params: " + request.getQueryString());
         try {
 //            int k = 8;
             int kv2 = Integer.parseInt(getServletContext().getInitParameter("k"));
@@ -109,16 +110,16 @@ public class VehicleServlet extends HttpServlet {
             }
             
             // Load Driver
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("org.h2.Driver");
 
             // Get connection
-            String dbURL = "jdbc:mysql://localhost:3307/vehicles";
-            String username = "root";
-            String password = "sesame";
+            String dbURL = "jdbc:h2:/workspaces/Vehicle-E-commerce-website/database/vehicles;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1";
+            String username = "sa";
+            String password = "";
             Connection connection = DriverManager.getConnection(
                  dbURL, username, password);
-            String preparedSQL = "SELECT * FROM vehicle"
-                           + "ORDER BY type ASC Limit 0, " + kv2;
+            String preparedSQL = "SELECT * FROM vehicle "
+                           + "ORDER BY type ASC LIMIT " + kv2 + " OFFSET 0";
             PreparedStatement statement = connection.prepareStatement(preparedSQL);
 //                    compare with Statement statement = connection.createStatement()
 
@@ -133,13 +134,10 @@ public class VehicleServlet extends HttpServlet {
 
             //======================== Query 2 =========================//
             //======================== Get total amount of data listings =========================//
-            String preparedSQL2 = "SELECT * FROM boat"
-                    + "ORDER BY type Limit 0, " + kv2;
-            PreparedStatement statement2 = connection.prepareStatement(preparedSQL2);
-
-            ResultSet counterBoat = statement2.executeQuery(
-                 "SELECT COUNT(*) FROM " + type 
-                         + " LIMIT 0, " + kv2);
+            // Fixed: COUNT query doesn't need LIMIT, and removed incorrect boat table reference
+            PreparedStatement statement2 = connection.prepareStatement("SELECT COUNT(*) FROM vehicle WHERE type = ?");
+            statement2.setString(1, type);
+            ResultSet counterBoat = statement2.executeQuery();
             // get data listing amount
             counterBoat.next();
 
@@ -223,7 +221,10 @@ public class VehicleServlet extends HttpServlet {
             out.print("</body>");
         out.close();
         }
-        catch(SQLException e){} catch (ClassNotFoundException ex) {
+        catch(SQLException e){
+            System.err.println("SQL Exception in VehicleServlet: " + e.getMessage());
+            e.printStackTrace();
+        } catch (ClassNotFoundException ex) {
             Logger.getLogger(VehicleServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -233,7 +234,9 @@ public class VehicleServlet extends HttpServlet {
         try {
             PrintWriter out=response.getWriter(); 
             Connection con=getConnection();  
-            PreparedStatement ps=con.prepareStatement("select * from vehicle where type = '" + type + "' " + sorting + " limit "+(start-1)+","+total + "");  
+            // H2 syntax: LIMIT count OFFSET offset (not MySQL LIMIT offset,count)
+            String sql = "select * from vehicle where type = '" + type + "' " + sorting + " limit " + total + " offset " + (start-1);
+            PreparedStatement ps=con.prepareStatement(sql);  
             ResultSet rs=ps.executeQuery();  
             while(rs.next()) {
                 out.print("<tr style='align-self: center;'><th>" + rs.getString("name") + "</th><th>" + rs.getString("price") + "</th><th>" + rs.getString("type") +  "</th><th>" + "<img style='height: 200px; width: 200px;' src='image/" + rs.getString("image") + ".jpg'>"  + "</th>");
@@ -251,15 +254,18 @@ public class VehicleServlet extends HttpServlet {
                     out.print("</th>");
                 out.print("</tr>");
             }
-        } catch(SQLException e){} 
+        } catch(SQLException e){
+            System.err.println("SQL Exception in RepeatBoat: " + e.getMessage());
+            e.printStackTrace();
+        } 
      }
      
      // Get connection to sql database
      public static Connection getConnection(){  
         Connection con=null;  
         try{  
-            Class.forName("com.mysql.jdbc.Driver");  
-            con=DriverManager.getConnection("jdbc:mysql://localhost:3307/vehicles","root","sesame");  
+            Class.forName("org.h2.Driver");  
+            con=DriverManager.getConnection("jdbc:h2:/workspaces/Vehicle-E-commerce-website/database/vehicles;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1","sa","");  
         }catch(Exception e){System.out.println(e);}  
         return con;  
     }  

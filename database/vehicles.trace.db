@@ -1,0 +1,61 @@
+2025-07-10 15:46:31 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Column "﻿1" not found; SQL statement:
+
+INSERT INTO vehicle (idvehicle, name, price, type, image) VALUES (﻿1, 'Wakeboard Boats', 50000, 'boat', 'Wakeboard Boats') [42122-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:147)
+	at org.h2.command.dml.Insert.prepare(Insert.java:270)
+	at org.h2.command.Parser.prepareCommand(Parser.java:263)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:176)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:164)
+	at org.h2.tools.RunScript.process(RunScript.java:261)
+	at org.h2.tools.RunScript.process(RunScript.java:191)
+	at org.h2.tools.RunScript.process(RunScript.java:329)
+	at org.h2.tools.RunScript.runTool(RunScript.java:142)
+	at org.h2.tools.RunScript.main(RunScript.java:69)
+2025-07-10 15:47:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Column "﻿1" not found; SQL statement:
+
+INSERT INTO vehicle (idvehicle, name, price, type, image) VALUES (﻿1, 'Wakeboard Boats', 50000, 'boat', 'Wakeboard Boats') [42122-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:147)
+	at org.h2.command.dml.Insert.prepare(Insert.java:270)
+	at org.h2.command.Parser.prepareCommand(Parser.java:263)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:176)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:164)
+	at org.h2.tools.RunScript.process(RunScript.java:261)
+	at org.h2.tools.RunScript.process(RunScript.java:191)
+	at org.h2.tools.RunScript.process(RunScript.java:329)
+	at org.h2.tools.RunScript.runTool(RunScript.java:142)
+	at org.h2.tools.RunScript.main(RunScript.java:69)
+2025-07-10 15:54:20 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "
+
+                       
+INSERT OR[*] IGNORE INTO VEHICLE (IDVEHICLE, NAME, PRICE, TYPE, IMAGE) VALUES (100, 'Cabin Cruisers', 25000.00, 'boat', 'Cabin Cruisers') "; expected "INTO"; SQL statement:
+
+
+-- Add missing vehicles
+INSERT OR IGNORE INTO vehicle (idvehicle, name, price, type, image) VALUES (100, 'Cabin Cruisers', 25000.00, 'boat', 'Cabin Cruisers') [42001-196]
+2025-07-10 16:20:03 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "VEHICLEORDER" not found; SQL statement:
+SELECT * FROM vehicleORDER BY type ASC Limit 0, 10 [42102-196]
+2025-07-10 16:20:13 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLException: Table "VEHICLEORDER" not found; SQL statement:
+SELECT * FROM vehicleORDER BY type ASC Limit 0, 10 [42102-196]
+2025-07-10 16:20:22 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLException: Table "VEHICLEORDER" not found; SQL statement:
+SELECT * FROM vehicleORDER BY type ASC Limit 0, 10 [42102-196]
+2025-07-10 16:20:33 jdbc[6]: exception
+org.h2.jdbc.JdbcSQLException: Table "VEHICLEORDER" not found; SQL statement:
+SELECT * FROM vehicleORDER BY type ASC Limit 0, 10 [42102-196]

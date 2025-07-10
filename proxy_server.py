@@ -56,8 +56,18 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
     
     def forward_to_tomcat(self):
         try:
+            # Get the Codespace name from environment variable
+            codespace_name = os.environ.get('CODESPACE_NAME')
+            github_codespaces_port_forwarding_domain = os.environ.get('GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN')
+            
             # Construct the Tomcat URL
-            tomcat_url = f"http://localhost:8080/vehicle-ecommerce{self.path}"
+            if codespace_name and github_codespaces_port_forwarding_domain:
+                # Use Codespace URL
+                tomcat_url = f"https://{codespace_name}-8080.{github_codespaces_port_forwarding_domain}/vehicle-ecommerce{self.path}"
+            else:
+                # Fallback to localhost (for local development)
+                tomcat_url = f"http://localhost:8080/vehicle-ecommerce{self.path}"
+            
             print(f"Forwarding to Tomcat URL: {tomcat_url}")
             
             # Handle POST data if present
