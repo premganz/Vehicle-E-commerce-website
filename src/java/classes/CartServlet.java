@@ -8,8 +8,15 @@ package classes;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -77,6 +84,7 @@ public class CartServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+            System.out.println("CartServlet.doPost() called");
             response.setContentType("text/html");  
             PrintWriter out=response.getWriter();
         
@@ -88,6 +96,7 @@ public class CartServlet extends HttpServlet {
             if (action == null) {
                 action = "cart";  // default action
             }
+            System.out.println("Cart action: " + action);
             
             // perform action and set URL to appropriate page
             if (action.equals("shop")) {
@@ -98,6 +107,8 @@ public class CartServlet extends HttpServlet {
                 String price = request.getParameter("price");
                 String nameTag = request.getParameter("name");
                 String productCode = request.getParameter("productId"); // check
+                
+                System.out.println("Cart parameters - productId: " + productCode + ", quantity: " + quantityString + ", price: " + price + ", name: " + nameTag);
                 
                 
 //                int codeConverted = Integer.parseInt(productCode);
@@ -121,8 +132,40 @@ public class CartServlet extends HttpServlet {
                     quantity = 1;
                 }
                 
-                String path = sc.getRealPath("/WEB-INF/products.txt");
-                Product product = ProductIO.getProduct(productCode, path);
+                // Get product from H2 database instead of products.txt file
+                Product product = null;
+                if (productCode != null) {
+                    try {
+                        Class.forName("org.h2.Driver");
+                        String dbURL = "jdbc:h2:/workspaces/Vehicle-E-commerce-website/database/vehicles;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1";
+                        Connection connection = DriverManager.getConnection(dbURL, "sa", "");
+                        
+                        String sql = "SELECT * FROM vehicle WHERE idvehicle = ?";
+                        PreparedStatement stmt = connection.prepareStatement(sql);
+                        stmt.setInt(1, Integer.parseInt(productCode));
+                        ResultSet rs = stmt.executeQuery();
+                        
+                        if (rs.next()) {
+                            product = new Product();
+                            product.setCode(productCode);
+                            product.setDescription(rs.getString("name"));
+                            product.setPrice(rs.getDouble("price"));
+                        }
+                        
+                        connection.close();
+                    } catch (ClassNotFoundException | SQLException | NumberFormatException e) {
+                        System.err.println("Error getting product from database: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                
+                if (product == null) {
+                    // Create a default product if database lookup fails
+                    product = new Product();
+                    product.setCode(productCode != null ? productCode : "unknown");
+                    product.setDescription(nameTag != null ? nameTag : "Unknown Product");
+                    product.setPrice(price != null ? Double.parseDouble(price) : 0.0);
+                }
                 
                 LineItem lineItem = new LineItem();
                 lineItem.setProduct(product);
@@ -163,14 +206,6 @@ public class CartServlet extends HttpServlet {
 //                
                 session.setAttribute("cart", cart);
                 url = "/cart.jsp";
-                
-//                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);    
-//                dispatcher.forward(request, response);
-                
-
-                
-                
-                
             }
             else if (action.equals("checkout")) {
                 url = "/checkout.jsp";
@@ -179,15 +214,10 @@ public class CartServlet extends HttpServlet {
                 MoneyCarrier mc = new MoneyCarrier();
                 mc.setFullPrice(fullName);
                 request.setAttribute("mc", mc);
-                
-                
-                
             }
-//            sc.getRequestDispatcher(url).forward(request, response);
-//            response.setContentType("text/html"); 
-//        
+            
+            // Forward to the appropriate JSP page
             RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
-
             dispatcher.forward(request, response);
             
            
